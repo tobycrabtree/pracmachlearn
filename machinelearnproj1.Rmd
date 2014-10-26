@@ -18,7 +18,8 @@ training <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-tra
 testing <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", 
                     na.strings=c("NA"," ","","NaN","DIV/0!")) # read testing set
 
-training <- subset(training, select= -c(X,user_name,raw_timestamp_part_1, raw_timestamp_part_2,cvtd_timestamp,new_window,num_window)) # remove certain variables
+training <- subset(training, select= -c(X,user_name,raw_timestamp_part_1, raw_timestamp_part_2,
+                                        cvtd_timestamp,new_window,num_window)) # remove certain variables
 
 colsRemove <- NULL # identify columns with high amount of NAs
 l <- length(names(training))
