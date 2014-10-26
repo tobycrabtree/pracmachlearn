@@ -9,7 +9,7 @@ The goal of this project is to predict the manner in which 6 participants did ba
 
 The training and test set data was read into R. The training set consists of 19,622 observations of 160 variables. The testing set consists of 20 observations of 160 variables. An exploratory analysis of the data indicates blank and missing values as well as variables unlikely to be needed for the prediction, such as a time stamp. Blank and Div 0 values were read as NA. Certain variables not important for prediction were left out of the training set (X, user_name, window and the time stamp variables). Certain variables that had a high amounts of NAs (greater than 80% of valus) were also left out of the training set.
 
-```{r read data} 
+```{r message=FALSE warning=FALSE } 
 require(caret); require(randomForest); require(e1071)
 
 training <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", 
@@ -42,7 +42,7 @@ cvCtrl <- trainControl(method="cv", number=10, repeats=5) # 10-fold cross valida
 modelFit <- train(classe ~., data=trainingTS,method="rf",ntree=100) # classification model
 ```
 
-Accuracy of the model is summarized below. The estimate of error rate was about 1%. 
+Accuracy of the model is summarized below. The estimate of error rate is below 1%. 
 ```{r model}
 modelFit$finalModel
 ```
