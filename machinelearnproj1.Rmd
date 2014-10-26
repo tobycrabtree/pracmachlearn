@@ -31,7 +31,7 @@ training <- training[,-colsRemove] # remove columns from training
 
 ```
 
-Build the classification model using random forest. The training data was split into a training set (70%) and a cross validation set (30%).
+Build the classification model using random forests. The training data was split into a training set (70%) and a cross validation set (30%).
 ```{r training the model} 
 library(caret); library(e1071)
 inTraining <- createDataPartition(training$classe,p=.7, list=FALSE)

@@ -60,7 +60,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <p>The goal of this project is to predict the manner in which 6 participants did barbell lifts correctly and incorrectly (i.e., to predict the “classe” variable in the training set). The weight lifting exercise data for this project come from <a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a>.</p>
 <p>The training and test set data was read into R. The training set consists of 19,622 observations of 160 variables. The testing set consists of 20 observations of 160 variables. An exploratory analysis of the data indicates blank and missing values as well as variables unlikely to be needed for the prediciton, such as a time stamp. Blank and Div 0 values were read as NA, Certain variables not important for prediction were left out of the training set (X, user_name, window and the time stamp variables). Certain variables that had a high amounts of NAs (greater than 80% of valus) were also left out of the training set.</p>
-<pre class="r"><code>require(caret); require(randomForest)</code></pre>
+<pre class="r"><code>require(caret); require(randomForest); require(e1071)</code></pre>
 <pre><code>## Loading required package: caret</code></pre>
 <pre><code>## Warning: package 'caret' was built under R version 3.1.1</code></pre>
 <pre><code>## Loading required package: lattice
@@ -68,12 +68,17 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 ## Loading required package: randomForest</code></pre>
 <pre><code>## Warning: package 'randomForest' was built under R version 3.1.1</code></pre>
 <pre><code>## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.</code></pre>
-<pre class="r"><code>training &lt;- read.csv(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;, na.strings=c(&quot;NA&quot;,&quot; &quot;,&quot;&quot;,&quot;NaN&quot;,&quot;#DIV/0!&quot;)) # read training set
+## Type rfNews() to see new features/changes/bug fixes.
+## Loading required package: e1071</code></pre>
+<pre><code>## Warning: package 'e1071' was built under R version 3.1.1</code></pre>
+<pre class="r"><code>training &lt;- read.csv(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;, 
+                     na.strings=c(&quot;NA&quot;,&quot; &quot;,&quot;&quot;,&quot;NaN&quot;,&quot;#DIV/0!&quot;)) # read training set
 
-testing &lt;- read.csv(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;, na.strings=c(&quot;NA&quot;,&quot; &quot;,&quot;&quot;,&quot;NaN&quot;,&quot;DIV/0!&quot;)) # read testing set
+testing &lt;- read.csv(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;, 
+                    na.strings=c(&quot;NA&quot;,&quot; &quot;,&quot;&quot;,&quot;NaN&quot;,&quot;DIV/0!&quot;)) # read testing set
 
-training &lt;- subset(training, select= -c(X,user_name,raw_timestamp_part_1, raw_timestamp_part_2,cvtd_timestamp,new_window,num_window)) # remove certain variables
+training &lt;- subset(training, select= -c(X,user_name,raw_timestamp_part_1, raw_timestamp_part_2,
+                                        cvtd_timestamp,new_window,num_window)) # remove certain variables
 
 colsRemove &lt;- NULL # identify columns with high amount of NAs
 l &lt;- length(names(training))
@@ -83,9 +88,8 @@ for (i in 1:l){
 }
 training &lt;- training[,-colsRemove] # remove columns from training</code></pre>
 <p>Build the classification model using random forest. The training data was split into a training set (70%) and a cross validation set (30%).</p>
-<pre class="r"><code>library(caret); library(lattice); library(ggplot2); library(e1071)</code></pre>
-<pre><code>## Warning: package 'e1071' was built under R version 3.1.1</code></pre>
-<pre class="r"><code>inTraining &lt;- createDataPartition(training$classe,p=.7, list=FALSE)
+<pre class="r"><code>library(caret); library(e1071)
+inTraining &lt;- createDataPartition(training$classe,p=.7, list=FALSE)
 trainingTS &lt;- training[inTraining,]
 trainingCVS &lt;- training[-inTraining,]
 
@@ -100,26 +104,26 @@ modelFit &lt;- train(classe ~., data=trainingTS,method=&quot;rf&quot;,ntree=100)
 ##                      Number of trees: 100
 ## No. of variables tried at each split: 27
 ## 
-##         OOB estimate of  error rate: 0.76%
+##         OOB estimate of  error rate: 0.82%
 ## Confusion matrix:
 ##      A    B    C    D    E class.error
-## A 3897    5    3    0    1 0.002304147
-## B   17 2626   12    2    1 0.012039127
-## C    0   15 2369   12    0 0.011268781
-## D    0    0   25 2224    3 0.012433393
-## E    0    0    4    4 2517 0.003168317</code></pre>
-<p>Cross-validation was applied. The out of sample error is less than 1%.</p>
+## A 3902    2    1    0    1 0.001024066
+## B   22 2627    9    0    0 0.011662904
+## C    0   18 2369    9    0 0.011268781
+## D    0    1   27 2220    4 0.014209591
+## E    0    3    4   11 2507 0.007128713</code></pre>
+<p>Cross-validation was applied. The out of sample error is about 1%.</p>
 <pre class="r"><code>predictions &lt;- predict(modelFit,newdata=trainingCVS)
 confusionMatrix(trainingCVS$classe,predictions)$table</code></pre>
 <pre><code>##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1672    1    1    0    0
-##          B    9 1125    5    0    0
-##          C    0    6 1011    9    0
-##          D    0    0   23  939    2
-##          E    0    1    2    2 1077</code></pre>
+##          A 1674    0    0    0    0
+##          B    8 1128    3    0    0
+##          C    0   10 1013    3    0
+##          D    0    0   16  948    0
+##          E    0    0    1    2 1079</code></pre>
 <pre class="r"><code>100*(1-sum(predictions==trainingCVS$classe)/length(predictions))</code></pre>
-<pre><code>## [1] 1.036534</code></pre>
+<pre><code>## [1] 0.7306712</code></pre>
 <pre class="r"><code># calculation out of sample error rate percentage</code></pre>
 <p>The final prediction from the machine learning algorithm in the 20 test cases is as follows:</p>
 <pre class="r"><code>answers &lt;- predict(modelFit, newdata=testing)
