@@ -10,7 +10,7 @@ The goal of this project is to predict the manner in which 6 participants did ba
 The training and test set data was read into R. The training set consists of 19,622 observations of 160 variables. The testing set consists of 20 observations of 160 variables. An exploratory analysis of the data indicates blank and missing values as well as variables unlikely to be needed for the prediciton, such as a time stamp. Blank and Div 0 values were read as NA, Certain variables not important for prediction were left out of the training set (X, user_name, window and the time stamp variables). Certain variables that had a high amounts of NAs (greater than 80% of valus) were also left out of the training set.
 
 ```{r read data} 
-require(caret); require(randomForest)
+require(caret); require(randomForest); require(e1071)
 
 training <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", 
                      na.strings=c("NA"," ","","NaN","#DIV/0!")) # read training set
@@ -33,7 +33,7 @@ training <- training[,-colsRemove] # remove columns from training
 
 Build the classification model using random forest. The training data was split into a training set (70%) and a cross validation set (30%).
 ```{r training the model} 
-library(caret); library(lattice); library(ggplot2); library(e1071)
+library(caret); library(e1071)
 inTraining <- createDataPartition(training$classe,p=.7, list=FALSE)
 trainingTS <- training[inTraining,]
 trainingCVS <- training[-inTraining,]
@@ -47,7 +47,7 @@ Accuracy of the model is summarized below. The estimate of error rate was about 
 modelFit$finalModel
 ```
 
-Cross-validation was applied. The out of sample error is less than 1%.
+Cross-validation was applied. The out of sample error is about 1%.
 ```{r cross validation}
 predictions <- predict(modelFit,newdata=trainingCVS)
 confusionMatrix(trainingCVS$classe,predictions)$table
