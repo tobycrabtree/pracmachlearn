@@ -9,12 +9,14 @@ The goal of this project is to predict the manner in which 6 participants did ba
 
 The training and test set data was read into R. The training set consists of 19,622 observations of 160 variables. The testing set consists of 20 observations of 160 variables. An exploratory analysis of the data indicates blank and missing values as well as variables unlikely to be needed for the prediciton, such as a time stamp. Blank and Div 0 values were read as NA, Certain variables not important for prediction were left out of the training set (X, user_name, window and the time stamp variables). Certain variables that had a high amounts of NAs (greater than 80% of valus) were also left out of the training set.
 
-```{r } 
+```{r read data} 
 require(caret); require(randomForest)
 
-training <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", na.strings=c("NA"," ","","NaN","#DIV/0!")) # read training set
+training <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", 
+                     na.strings=c("NA"," ","","NaN","#DIV/0!")) # read training set
 
-testing <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", na.strings=c("NA"," ","","NaN","DIV/0!")) # read testing set
+testing <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", 
+                    na.strings=c("NA"," ","","NaN","DIV/0!")) # read testing set
 
 training <- subset(training, select= -c(X,user_name,raw_timestamp_part_1, raw_timestamp_part_2,cvtd_timestamp,new_window,num_window)) # remove certain variables
 
@@ -29,7 +31,7 @@ training <- training[,-colsRemove] # remove columns from training
 ```
 
 Build the classification model using random forest. The training data was split into a training set (70%) and a cross validation set (30%).
-```{r} 
+```{r training the model} 
 library(caret); library(lattice); library(ggplot2); library(e1071)
 inTraining <- createDataPartition(training$classe,p=.7, list=FALSE)
 trainingTS <- training[inTraining,]
@@ -40,12 +42,12 @@ modelFit <- train(classe ~., data=trainingTS,method="rf",ntree=100) # classifica
 ```
 
 Accuracy of the model is summarized below. The estimate of error rate was about 1%. 
-```{r}
+```{r model}
 modelFit$finalModel
 ```
 
 Cross-validation was applied. The out of sample error is less than 1%.
-```{r}
+```{r cross validation}
 predictions <- predict(modelFit,newdata=trainingCVS)
 confusionMatrix(trainingCVS$classe,predictions)$table
 100*(1-sum(predictions==trainingCVS$classe)/length(predictions))
@@ -53,7 +55,7 @@ confusionMatrix(trainingCVS$classe,predictions)$table
 ```
 
 The final prediction from the machine learning algorithm in the 20 test cases is as follows:
-```{r}
+```{r prediction}
 answers <- predict(modelFit, newdata=testing)
 answers
 ```
